@@ -1,3 +1,5 @@
 venv
 .idea
-scripts/app/view/__pycache__
+view/__pycache__
+view/*/__pycache__
+controller/__pycache__
