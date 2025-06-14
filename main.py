@@ -1,17 +1,19 @@
 import sys
-from PyQt5.QtWidgets import QApplication
-from controller import MainController
+
+from PyQt5 import QtWidgets
+
+from glm_pipeline_hub.ui import GLMPipelineHubMainWindow
+from styles import STYLESHEET
+
 
 def main():
-    # Create app
-    app = QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
+    app.setStyleSheet(STYLESHEET)
 
-    # Create the window
-    main_controller = MainController()
-    window = main_controller.view
+    main_window = GLMPipelineHubMainWindow()
 
-    window.showMaximized()
-    sys.exit(app.exec_())
+    app.exec_()
+
 
 def on_start():
     pass
