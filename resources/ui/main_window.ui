@@ -190,7 +190,7 @@
             </sizepolicy>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>2</number>
            </property>
            <widget class="QWidget" name="page">
             <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -617,7 +617,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLabel" name="label_3">
+                <widget class="QLabel" name="user_machine_id_label">
                  <property name="text">
                   <string>INSERT MACHINE ID HERE</string>
                  </property>

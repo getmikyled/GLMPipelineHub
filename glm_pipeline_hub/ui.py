@@ -1,9 +1,12 @@
 import os
 
 from PyQt5 import QtWidgets, uic
+from Qt import GLMDialog
 
-from glm_pipeline_hub.core import get_resource_path
+import glm_pipeline_hub.core.os_utility as os_util
 import glm_pipeline_hub.api as glm
+
+import glm_pipeline_hub.users.users_utility as users_util
 
 __all__ = ['GLMPipelineHubMainWindow']
 
@@ -12,19 +15,27 @@ class GLMPipelineHubMainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
+        # Load UI
         uic.loadUi(
-            os.path.join(get_resource_path('resources\\ui\\main_window.ui')),
-            baseinstance = self
+            os.path.join(r'resources\ui\main_window.ui'),
+            baseinstance=self
         )
 
         self.show()
 
+        self._init_user()
+        self._init_ui()
+
+
+    def _init_ui(self):
+        """ Initialize the window's UI."""
+
         # -------------------------------------------
         # Sidebar setup
 
-        self.app_launcher_button.clicked.connect(lambda : self.stack.setCurrentIndex(0))
-        self.shot_manager_button.clicked.connect(lambda : self.stack.setCurrentIndex(1))
-        self.system_profile_button.clicked.connect(lambda : self.stack.setCurrentIndex(2))
+        self.app_launcher_button.clicked.connect(lambda: self.stack.setCurrentIndex(0))
+        self.shot_manager_button.clicked.connect(lambda: self.stack.setCurrentIndex(1))
+        self.system_profile_button.clicked.connect(lambda: self.stack.setCurrentIndex(2))
 
         # -------------------------------------------
         # App Launcher Setup
@@ -39,10 +50,9 @@ class GLMPipelineHubMainWindow(QtWidgets.QMainWindow):
         self.shot_combo_box.addItems(glm.get_shots())
 
         # Department setup
-        self.department_combo_box.addItems(glm.get_departments())
+        self.department_combo_box.addItems(glm.DEPARTMENTS)
 
         # Select shot buttons setup
-
 
         # Set buttons to 50% opacity if disabled
         effect = QtWidgets.QGraphicsOpacityEffect()
@@ -58,3 +68,116 @@ class GLMPipelineHubMainWindow(QtWidgets.QMainWindow):
 
         # -------------------------------------------
         # System profile setup
+
+        machine_id = users_util.get_machine_id()
+
+        # Username setup
+
+        self.username_line_edit.setText(users_util.get_users()[machine_id]['username'])
+        self.edit_username_button.clicked.connect(self._edit_username)
+
+        # Machine ID setup
+        self.user_machine_id_label.setText(machine_id)
+
+    def _init_user(self):
+        """ Initialize the user of the application."""
+
+        # Check if the machine has already been registered
+        users = users_util.get_users()
+        self.machine_id = users_util.get_machine_id()
+
+        # If the user has not been registered
+        if self.machine_id not in users.keys():
+            # Add the user
+            users_util.add_user(self.machine_id)
+
+            username = self._input_new_username(force=True)
+            users_util.set_user_attr(self.machine_id, 'username', username)
+
+            maya_path = os.path.join(r'C:\Program Files\Autodesk\Maya2024')
+            if os.path.exists(maya_path) == False:
+                maya_path = self._input_new_path(software='Maya', force=True)
+            users_util.set_user_attr(self.machine_id, 'maya_path', maya_path)
+
+            blender_path = os.path.join(r'G:\Shared drives\GLM\06_Pipeline\Blender')
+            if os.path.exists(blender_path) == False:
+                blender_path = self._input_new_path(software='Blender', force=True)
+            users_util.set_user_attr(self.machine_id, 'blender_path', blender_path)
+
+    def _input_new_username(self, force : bool) -> str:
+        """ Prompt the user to set a new username to be associated with their machine.
+
+        Args:
+            force (bool): If true, forces the user to set a new username.
+
+        Returns:
+            str: The username that the user set.
+        """
+
+        dialog = NewUserDialog()
+        result = dialog.exec_()
+
+        # If username saved
+        if result == QtWidgets.QDialog.Accepted:
+            return dialog.username_line_edit.text()
+
+        else:
+            if force:
+                # Recursively launch the new first time user setup again
+                return self._input_new_username()
+        return ''
+
+    def _edit_username(self):
+        username = self._input_new_username(force=False)
+
+        if username:
+            users_util.set_user_attr(self.machine_id, 'username', username)
+            self.username_line_edit.setText(username)
+
+    def _input_new_path(self, software : str, force : bool) -> str:
+        """ Prompt the user to input a new path.
+
+        Args:
+            software (str): The name of the software that the user is being prompted a path for.
+            force (bool): If true, forces the user to set a new path.
+        """
+
+        dialog = SetPathDialog(software=software, path=r'C:\Program Files')
+        result = dialog.exec_()
+
+        # If path saved
+        if result == QtWidgets.QDialog.Accepted:
+            return dialog.path_line_edit.text()
+        else:
+            if force:
+                # Recursively launch the new first time user setup again
+                return self._input_new_path()
+        return ''
+
+
+class NewUserDialog(GLMDialog):
+
+    def __init__(self):
+        """ Initializes the NewUserDialog and its UI."""
+        super().__init__(ui_path=os_util.get_resource_path(r'resources\ui\new_user_dialog.ui'))
+
+class SetPathDialog(GLMDialog):
+
+    def __init__(self, software : str, path : str=''):
+        """ Initializes the SetPathDialog and its UI."""
+        super().__init__(ui_path=os_util.get_resource_path(r'resources\ui\set_path_dialog.ui'))
+
+        # Label setup
+        self.software_folder_path_label.setText(f'{software} Folder Path')
+
+        # Line edit setup
+        self.path_line_edit.setText(path)
+
+        # Folder button setup
+        self.folder_button.clicked.connect(self._on_folder_button_clicked)
+
+    def _on_folder_button_clicked(self):
+        """ Called when the folder button is clicked."""
+
+        folder = QtWidgets.QFileDialog.getExistingDirectory(None, "Select Folder")
+        self.path_line_edit.setText(folder)

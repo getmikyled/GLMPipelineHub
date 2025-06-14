@@ -6,3 +6,6 @@ controller/__pycache__
 dist/*
 build/*
 main.spec
+*/__pycache__/*
+*/*/__pycache__/*
+__pycache__/*

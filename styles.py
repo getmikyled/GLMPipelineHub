@@ -8,6 +8,10 @@ FONT_COLOR = '#FFFFFF'
 
 STYLESHEET = f'''
 
+    QWidget {{
+        background-color: {PRIMARY_COLOR};
+    }}
+
     #primary {{
         background-color: {PRIMARY_COLOR};
     }}
@@ -22,6 +26,7 @@ STYLESHEET = f'''
     
     QPushButton {{
         color: {FONT_COLOR};
+        background-color: {SECONDARY_COLOR};
         padding: 5px;
     }}
     
@@ -44,6 +49,12 @@ STYLESHEET = f'''
         border: 1px solid gray;
         selection-background-color: {HIGHLIGHT_COLOR};
         selection-color: white;
+        background-color: {SECONDARY_COLOR};
+    }}
+    
+    QLineEdit {{
+        color: {FONT_COLOR};
+        border: 1px solid gray;
         background-color: {SECONDARY_COLOR};
     }}
     
