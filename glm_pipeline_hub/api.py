@@ -1,4 +1,6 @@
-# Copyright - Guardian's Lament 2025
+# Property of Guardian's Lament
+# Author: Mikyle Mosquera
+# 2025Q3
 
 import os
 import subprocess
@@ -7,7 +9,6 @@ from glm_pipeline_hub.users import users_utility as users_util
 
 __all__ = [
             'launch_maya', 'launch_blender', 'launch_nuke',     # Launch
-            'get_shots', 'DEPARTMENTS',
             ]
 
 _MACHINE_ID = users_util.get_machine_id()
@@ -20,8 +21,6 @@ if _MACHINE_ID in _USERS.keys():
     _NUKE_PATH = _USER_INFO['nuke_path']
 _PYTHON_PATH = r'G:\Shared drives\GLM\06_PIPELINE\python\source'
 _MAYA_SCRIPTS_PATH = os.path.join(_PYTHON_PATH, r'glm\maya')
-
-DEPARTMENTS = ['PREVIS_LAYOUT', 'ANIM', 'FINAL_LAYOUT', 'LIGHT', 'FX_CFX', 'COMP']
 
 # -------------------------------------------
 # App Launcher API
@@ -76,11 +75,6 @@ def launch_nuke(file=None):
 # -------------------------------------------
 # Shot Manager API
 
-def get_shots():
-    SHOT_PATH = 'G:/Shared drives/GLM/03_SHOTS'
-    black_list = ['TEMPLATE']
-
-    return [dir for dir in os.listdir(SHOT_PATH) if (os.path.isdir(f'{SHOT_PATH}/{dir}') and dir not in black_list)]
 
 # -------------------------------------------
 # System Profile API

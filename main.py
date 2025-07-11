@@ -7,6 +7,8 @@ from styles import STYLESHEET
 
 
 def main():
+    sys.path.append(r'G:\Shared drives\GLM\06_PIPELINE\python\source')
+
     app = QtWidgets.QApplication(sys.argv)
     app.setStyleSheet(STYLESHEET)
 
