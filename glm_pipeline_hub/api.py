@@ -18,7 +18,8 @@ if _MACHINE_ID in _USERS.keys():
     _MAYA_APP_DIR = os.path.expanduser(r'~\Documents\maya')
     _BLENDER_PATH = _USER_INFO['blender_path']
     _NUKE_PATH = _USER_INFO['nuke_path']
-    _PYTHON_PATH = r'G:\Shared drives\GLM\06_PIPELINE\python'
+_PYTHON_PATH = r'G:\Shared drives\GLM\06_PIPELINE\python\source'
+_MAYA_SCRIPTS_PATH = os.path.join(_PYTHON_PATH, r'glm\maya')
 
 DEPARTMENTS = ['PREVIS_LAYOUT', 'ANIM', 'FINAL_LAYOUT', 'LIGHT', 'FX_CFX', 'COMP']
 
@@ -41,7 +42,7 @@ def launch_maya(file=None):
     # Inherit current environment and add necessary paths
     env = os.environ.copy()
     env['MAYA_APP_DIR'] = _MAYA_APP_DIR
-    env['PYTHONPATH'] = _PYTHON_PATH
+    env['PYTHONPATH'] = _PYTHON_PATH + os.pathsep + _MAYA_SCRIPTS_PATH
 
     # Remove QT from environment so that it does not interfere with Maya's QT Plugin
     for key in list(env):
@@ -59,7 +60,8 @@ def launch_blender(file : str=None):
     """
 
     blender_path = r'G:\Shared drives\GLM\06_PIPELINE\Blender\blender.exe'
-    blender_args = [blender_path, '--app-template', 'Guardians_Lament']
+    blender_args = [blender_path,
+                    '--app-template', 'Guardians_Lament']
 
     subprocess.Popen(blender_args)
 

@@ -5,7 +5,7 @@ import json
 
 import glm_pipeline_hub.core.os_utility as os_util
 
-USERS_JSON_PATH = os_util.get_resource_path(r'resources\users\users.json')
+USERS_JSON_PATH = r'G:\Shared drives\GLM\06_PIPELINE\users\users.json'
 
 def get_machine_id() -> str:
     """

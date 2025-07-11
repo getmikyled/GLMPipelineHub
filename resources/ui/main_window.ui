@@ -85,11 +85,14 @@
              <height>100</height>
             </size>
            </property>
+           <property name="styleSheet">
+            <string notr="true">background: transparent;</string>
+           </property>
            <property name="text">
             <string/>
            </property>
            <property name="pixmap">
-            <pixmap>assets/app_header.png</pixmap>
+            <pixmap>../images/app_header.png</pixmap>
            </property>
            <property name="scaledContents">
             <bool>true</bool>
@@ -190,7 +193,7 @@
             </sizepolicy>
            </property>
            <property name="currentIndex">
-            <number>2</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="page">
             <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -245,12 +248,21 @@
                   </size>
                  </property>
                  <property name="text">
-                  <string>Maya</string>
+                  <string/>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>75</width>
+                   <height>75</height>
+                  </size>
                  </property>
                 </widget>
                </item>
                <item row="0" column="2">
                 <widget class="QPushButton" name="nuke_launcher_button">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -271,6 +283,12 @@
                  </property>
                  <property name="text">
                   <string>Nuke</string>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>75</width>
+                   <height>75</height>
+                  </size>
                  </property>
                 </widget>
                </item>
@@ -295,7 +313,13 @@
                   </size>
                  </property>
                  <property name="text">
-                  <string>Blender</string>
+                  <string/>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>75</width>
+                   <height>75</height>
+                  </size>
                  </property>
                 </widget>
                </item>

@@ -1,6 +1,6 @@
 import os
 
-from PyQt5 import QtWidgets, uic
+from PyQt5 import QtWidgets, uic, QtGui
 from Qt import GLMDialog
 
 import glm_pipeline_hub.core.os_utility as os_util
@@ -17,7 +17,7 @@ class GLMPipelineHubMainWindow(QtWidgets.QMainWindow):
 
         # Load UI
         uic.loadUi(
-            os.path.join(r'resources\ui\main_window.ui'),
+            os_util.get_resource_path(r'resources\ui\main_window.ui'),
             baseinstance=self
         )
 
@@ -40,8 +40,12 @@ class GLMPipelineHubMainWindow(QtWidgets.QMainWindow):
         # -------------------------------------------
         # App Launcher Setup
 
+        self.maya_launcher_button.setIcon(
+            QtGui.QIcon(os_util.get_resource_path(r'resources\images\icons\maya.png')))
         self.maya_launcher_button.clicked.connect(glm.launch_maya)
         self.blender_launcher_button.clicked.connect(glm.launch_blender)
+        self.blender_launcher_button.setIcon(
+            QtGui.QIcon(os_util.get_resource_path(r'resources\images\icons\blender.png')))
 
         # -------------------------------------------
         # Shot manager setup
