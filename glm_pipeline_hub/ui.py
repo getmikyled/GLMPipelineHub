@@ -1,14 +1,28 @@
+# Property of Guardian's Lament
+# Author: Mikyle Mosquera
+# 2025Q3
+
 import os
 
 from PyQt5 import QtWidgets, uic, QtGui
 from Qt import GLMDialog
 
+import glm.glm_pipeline_hub
 import glm_pipeline_hub.core.os_utility as os_util
-import glm_pipeline_hub.api as glm
+import glm_pipeline_hub.api as api
 
 import glm_pipeline_hub.users.users_utility as users_util
 
 __all__ = ['GLMPipelineHubMainWindow']
+
+SHOTS_DIR = 'G:/Shared drives/GLM/03_SHOTS'
+SHOT_BLACKLIST = ['TEMPLATE']
+
+DISABLE = [
+    'nuke_launcher_button', 'shot_manager_button'
+]
+
+DEPARTMENTS = ['PREVIS_LAYOUT', 'ANIM', 'FINAL_LAYOUT', 'LIGHT', 'FX_CFX', 'COMP']
 
 class GLMPipelineHubMainWindow(QtWidgets.QMainWindow):
 
@@ -26,9 +40,19 @@ class GLMPipelineHubMainWindow(QtWidgets.QMainWindow):
         self._init_user()
         self._init_ui()
 
+        glm.glm_pipeline_hub.startup()
 
     def _init_ui(self):
         """ Initialize the window's UI."""
+
+        # -------------------------------------------
+        # Disable desired widgets
+        for name in DISABLE:
+            widget = getattr(self, name, None)
+            if widget:
+                widget.setVisible(False)
+            else:
+                print(f'Warning: {name} not found')
 
         # -------------------------------------------
         # Sidebar setup
@@ -42,8 +66,8 @@ class GLMPipelineHubMainWindow(QtWidgets.QMainWindow):
 
         self.maya_launcher_button.setIcon(
             QtGui.QIcon(os_util.get_resource_path(r'resources\images\icons\maya.png')))
-        self.maya_launcher_button.clicked.connect(glm.launch_maya)
-        self.blender_launcher_button.clicked.connect(glm.launch_blender)
+        self.maya_launcher_button.clicked.connect(api.launch_maya)
+        self.blender_launcher_button.clicked.connect(api.launch_blender)
         self.blender_launcher_button.setIcon(
             QtGui.QIcon(os_util.get_resource_path(r'resources\images\icons\blender.png')))
 
@@ -51,10 +75,10 @@ class GLMPipelineHubMainWindow(QtWidgets.QMainWindow):
         # Shot manager setup
 
         # Shot setup
-        self.shot_combo_box.addItems(glm.get_shots())
+        self.shot_combo_box.addItems(self._get_shots())
 
         # Department setup
-        self.department_combo_box.addItems(glm.DEPARTMENTS)
+        self.department_combo_box.addItems(DEPARTMENTS)
 
         # Select shot buttons setup
 
@@ -107,6 +131,10 @@ class GLMPipelineHubMainWindow(QtWidgets.QMainWindow):
             if os.path.exists(blender_path) == False:
                 blender_path = self._input_new_path(software='Blender', force=True)
             users_util.set_user_attr(self.machine_id, 'blender_path', blender_path)
+
+    def _get_shots(self):
+        shots = os.listdir(SHOTS_DIR)
+        return [dir for dir in shots if (os.path.isdir(f'{SHOTS_DIR}/{dir}') and dir not in SHOT_BLACKLIST)]
 
     def _input_new_username(self, force : bool) -> str:
         """ Prompt the user to set a new username to be associated with their machine.
