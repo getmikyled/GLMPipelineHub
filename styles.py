@@ -30,6 +30,10 @@ STYLESHEET = f'''
         padding: 5px;
     }}
     
+    QToolButton {{
+        color: {FONT_COLOR};
+    }}
+    
     #primary QPushButton {{
         background-color: {SECONDARY_COLOR};
     }}

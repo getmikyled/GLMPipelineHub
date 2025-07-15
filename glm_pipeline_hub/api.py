@@ -5,22 +5,15 @@
 import os
 import subprocess
 
-from glm_pipeline_hub.users import users_utility as users_util
+from glm.core.users import users_utility as users_util
 
 __all__ = [
-            'launch_maya', 'launch_blender', 'launch_nuke',     # Launch
-            ]
+            'MACHINE_ID', 'launch_maya', 'launch_blender', 'launch_substance_painter', 'launch_nuke',     # Launch
+        ]
 
-_MACHINE_ID = users_util.get_machine_id()
-_USERS = users_util.get_users()
-if _MACHINE_ID in _USERS.keys():
-    _USER_INFO = users_util.get_users()[_MACHINE_ID]
-    _MAYA_PATH = _USER_INFO['maya_path']
-    _MAYA_APP_DIR = os.path.expanduser(r'~\Documents\maya')
-    _BLENDER_PATH = _USER_INFO['blender_path']
-    _NUKE_PATH = _USER_INFO['nuke_path']
-_PYTHON_PATH = r'G:\Shared drives\GLM\06_PIPELINE\python\source'
-_MAYA_SCRIPTS_PATH = os.path.join(_PYTHON_PATH, r'glm\maya')
+MACHINE_ID = users_util.get_machine_id()
+PYTHON_PATH = r'G:\Shared drives\GLM\06_PIPELINE\python\source'
+MAYA_SCRIPTS_PATH = os.path.join(PYTHON_PATH, r'glm\maya')
 
 # -------------------------------------------
 # App Launcher API
@@ -28,11 +21,15 @@ _MAYA_SCRIPTS_PATH = os.path.join(_PYTHON_PATH, r'glm\maya')
 def launch_maya(file=None):
     """ Launches Maya.
 
-        Args:
-            file (str): The file to open Maya in.
-        """
+    Args:
+        file (str): The file to open Maya in.
+    """
 
-    maya_exe_path = os.path.join(_MAYA_PATH, r'bin\maya.exe')
+    user_info = users_util.get_users()[MACHINE_ID]
+    maya_path = user_info[users_util.MAYA_USER_ATTR]
+    maya_app_dir = user_info[users_util.LOCAL_MAYA_USER_ATTR]
+
+    maya_exe_path = os.path.join(maya_path, r'bin\maya.exe')
     maya_args = [maya_exe_path]
 
     if file:
@@ -40,8 +37,8 @@ def launch_maya(file=None):
 
     # Inherit current environment and add necessary paths
     env = os.environ.copy()
-    env['MAYA_APP_DIR'] = _MAYA_APP_DIR
-    env['PYTHONPATH'] = _PYTHON_PATH + os.pathsep + _MAYA_SCRIPTS_PATH
+    env['MAYA_APP_DIR'] = maya_app_dir
+    env['PYTHONPATH'] = PYTHON_PATH + os.pathsep + MAYA_SCRIPTS_PATH
 
     # Remove QT from environment so that it does not interfere with Maya's QT Plugin
     for key in list(env):
@@ -58,19 +55,33 @@ def launch_blender(file : str=None):
         file (str): The file to open Blender in. # TO DO: MUST BE IMPLEMENTED.
     """
 
-    blender_path = r'G:\Shared drives\GLM\06_PIPELINE\Blender\blender.exe'
-    blender_args = [blender_path,
-                    '--app-template', 'Guardians_Lament']
+    blender_path = os.path.join(users_util.get_users()[MACHINE_ID][users_util.BLENDER_USER_ATTR], 'blender.exe')
+
+    blender_args = [blender_path, '--app-template', 'Guardians_Lament']
 
     subprocess.Popen(blender_args)
+
+def launch_substance_painter(file=None):
+    """ Launches Nuke.
+
+    Args:
+        file (str): The file to open Nuke in. # TO DO: MUST BE IMPLEMENTED.
+    """
+
+    user_info = users_util.get_users()[MACHINE_ID]
+    substance_painter_path = os.path.join(user_info[users_util.SUBSTANCE_PAINTER_USER_ATTR], 'Adobe Substance 3D Painter.exe')
+
+    substance_painter_args = [substance_painter_path]
+
+    subprocess.Popen(substance_painter_args)
 
 def launch_nuke(file=None):
     """ Launches Nuke.
 
-        Args:
-            file (str): The file to open Nuke in. # TO DO: MUST BE IMPLEMENTED.
-        """
-    pass
+    Args:
+        file (str): The file to open Nuke in. # TO DO: MUST BE IMPLEMENTED.
+    """
+    nuke_path = users_util.get_users()[MACHINE_ID][users_util.NUKE_USER_ATTR]
 
 # -------------------------------------------
 # Shot Manager API

@@ -11,7 +11,7 @@ import glm.glm_pipeline_hub
 import glm_pipeline_hub.core.os_utility as os_util
 import glm_pipeline_hub.api as api
 
-import glm_pipeline_hub.users.users_utility as users_util
+import glm.core.users.users_utility as users_util
 
 __all__ = ['GLMPipelineHubMainWindow']
 
@@ -35,10 +35,10 @@ class GLMPipelineHubMainWindow(QtWidgets.QMainWindow):
             baseinstance=self
         )
 
-        self.show()
-
         self._init_user()
         self._init_ui()
+
+        self.show()
 
         glm.glm_pipeline_hub.startup()
 
@@ -70,6 +70,9 @@ class GLMPipelineHubMainWindow(QtWidgets.QMainWindow):
         self.blender_launcher_button.clicked.connect(api.launch_blender)
         self.blender_launcher_button.setIcon(
             QtGui.QIcon(os_util.get_resource_path(r'resources\images\icons\blender.png')))
+        self.substance_painter_launcher_button.clicked.connect(api.launch_substance_painter)
+        self.substance_painter_launcher_button.setIcon(
+            QtGui.QIcon(os_util.get_resource_path(r'resources\images\icons\substance_painter.png')))
 
         # -------------------------------------------
         # Shot manager setup
@@ -97,15 +100,45 @@ class GLMPipelineHubMainWindow(QtWidgets.QMainWindow):
         # -------------------------------------------
         # System profile setup
 
+        # Machine ID setup
         machine_id = users_util.get_machine_id()
+        self.user_machine_id_label.setText(machine_id)
+
+        user_info = users_util.get_users()[machine_id]
 
         # Username setup
-
-        self.username_line_edit.setText(users_util.get_users()[machine_id]['username'])
+        self.username_label.setText(user_info['username'])
         self.edit_username_button.clicked.connect(self._edit_username)
 
-        # Machine ID setup
-        self.user_machine_id_label.setText(machine_id)
+        # Maya directory setup
+        self.maya_directory_label.setText(user_info[users_util.MAYA_USER_ATTR])
+        self.edit_maya_directory_button.clicked.connect(
+            lambda: self._input_new_path('Maya', users_util.MAYA_USER_ATTR, self.maya_directory_label))
+
+        # Local Maya directory setup
+        self.local_maya_directory_label.setText(user_info[users_util.LOCAL_MAYA_USER_ATTR])
+        self.edit_local_maya_directory_button.clicked.connect(
+            lambda: self._input_new_path('Local Maya', users_util.LOCAL_MAYA_USER_ATTR,
+                                         self.local_maya_directory_label))
+
+        # Blender directory setup
+        self.blender_directory_label.setText(user_info[users_util.BLENDER_USER_ATTR])
+        self.edit_blender_directory_button.clicked.connect(
+            lambda: self._input_new_path('Blender', users_util.BLENDER_USER_ATTR, self.blender_directory_label)
+        )
+
+        # Substance Painter directory setup
+        self.substance_painter_directory_label.setText(user_info[users_util.SUBSTANCE_PAINTER_USER_ATTR])
+        self.edit_substance_painter_directory_button.clicked.connect(
+            lambda: self._input_new_path('Substance Painter', users_util.SUBSTANCE_PAINTER_USER_ATTR,
+                                 self.substance_painter_directory_label))
+
+        # Local Substance Painter directory setup
+        self.local_substance_painter_directory_label.setText(user_info[users_util.LOCAL_SUBSTANCE_PAINTER_USER_ATTR])
+        self.edit_local_substance_painter_directory_button.clicked.connect(
+            lambda: self._input_new_path('Local Substance Painter',
+                                         users_util.LOCAL_SUBSTANCE_PAINTER_USER_ATTR,
+                                         self.local_substance_painter_directory_label))
 
     def _init_user(self):
         """ Initialize the user of the application."""
@@ -118,21 +151,55 @@ class GLMPipelineHubMainWindow(QtWidgets.QMainWindow):
         if self.machine_id not in users.keys():
             # Add the user
             users_util.add_user(self.machine_id)
-
             username = self._input_new_username(force=True)
             users_util.set_user_attr(self.machine_id, 'username', username)
 
+        if users_util.MAYA_USER_ATTR not in users_util.get_users()[api.MACHINE_ID].keys():
             maya_path = os.path.join(r'C:\Program Files\Autodesk\Maya2024')
-            if os.path.exists(maya_path) == False:
-                maya_path = self._input_new_path(software='Maya', force=True)
-            users_util.set_user_attr(self.machine_id, 'maya_path', maya_path)
+            if os.path.exists(maya_path):
+                users_util.set_user_attr(self.machine_id, users_util.MAYA_USER_ATTR, maya_path)
+            else:
+                self._input_new_path('Maya', users_util.MAYA_USER_ATTR)
 
-            blender_path = os.path.join(r'G:\Shared drives\GLM\06_Pipeline\Blender')
-            if os.path.exists(blender_path) == False:
-                blender_path = self._input_new_path(software='Blender', force=True)
-            users_util.set_user_attr(self.machine_id, 'blender_path', blender_path)
+        if users_util.LOCAL_MAYA_USER_ATTR not in users_util.get_users()[api.MACHINE_ID].keys():
+            local_maya_path = os.path.join(os.path.expanduser(r'~\Documents\maya'))
+            if os.path.exists(local_maya_path):
+                users_util.set_user_attr(self.machine_id, users_util.LOCAL_MAYA_USER_ATTR, local_maya_path)
+            else:
+                self._input_new_path('Local Maya', users_util.LOCAL_MAYA_USER_ATTR)
 
-    def _get_shots(self):
+        if users_util.BLENDER_USER_ATTR not in users_util.get_users()[api.MACHINE_ID].keys():
+            blender_path = os.path.join(r'G:\Shared drives\GLM\06_PIPELINE\Blender')
+            if os.path.exists(blender_path):
+                users_util.set_user_attr(self.machine_id, users_util.BLENDER_USER_ATTR, blender_path)
+            else:
+                self._input_new_path('Blender', users_util.BLENDER_USER_ATTR)
+
+        if users_util.SUBSTANCE_PAINTER_USER_ATTR not in users_util.get_users()[api.MACHINE_ID].keys():
+            substance_painter_path = os.path.join(r'C:\Program Files\Adobe\Adobe Substance 3D Painter')
+            if os.path.exists(substance_painter_path) :
+                users_util.set_user_attr(self.machine_id, users_util.SUBSTANCE_PAINTER_USER_ATTR,
+                                         substance_painter_path)
+            else:
+                self._input_new_path('Substance Painter', users_util.SUBSTANCE_PAINTER_USER_ATTR)
+
+        if users_util.LOCAL_SUBSTANCE_PAINTER_USER_ATTR not in users_util.get_users()[api.MACHINE_ID].keys():
+            local_substance_painter_path = os.path.join(os.path.expanduser(r'~\Documents\Adobe\Adobe Substance 3D Painter'))
+            if os.path.exists(local_substance_painter_path):
+                users_util.set_user_attr(self.machine_id, users_util.LOCAL_SUBSTANCE_PAINTER_USER_ATTR,
+                                         local_substance_painter_path)
+            else:
+                self._input_new_path('Local Substance Painter', users_util.LOCAL_SUBSTANCE_PAINTER_USER_ATTR)
+
+    def _get_shots(self) -> list[str]:
+        """ Get a list of all the shots in the shots directory.
+
+        Excludes blacklisted shots.
+
+        Returns:
+            list[str]: A list of all the shots in the shots directory.
+        """
+
         shots = os.listdir(SHOTS_DIR)
         return [dir for dir in shots if (os.path.isdir(f'{SHOTS_DIR}/{dir}') and dir not in SHOT_BLACKLIST)]
 
@@ -156,7 +223,7 @@ class GLMPipelineHubMainWindow(QtWidgets.QMainWindow):
         else:
             if force:
                 # Recursively launch the new first time user setup again
-                return self._input_new_username()
+                return self._input_new_username(True)
         return ''
 
     def _edit_username(self):
@@ -166,25 +233,33 @@ class GLMPipelineHubMainWindow(QtWidgets.QMainWindow):
             users_util.set_user_attr(self.machine_id, 'username', username)
             self.username_line_edit.setText(username)
 
-    def _input_new_path(self, software : str, force : bool) -> str:
+    def _input_new_path(self, software: str, attr: str, label: QtWidgets.QLabel = None) -> str:
         """ Prompt the user to input a new path.
 
         Args:
             software (str): The name of the software that the user is being prompted a path for.
-            force (bool): If true, forces the user to set a new path.
+            default (str): The default path to set the dialog to, and to return if user cancelled or ignored.
+
+        Returns:
+            str: The new path that the user inputted. Returns default if nothing was inputted.
         """
 
-        dialog = SetPathDialog(software=software, path=r'C:\Program Files')
+        default_dir = users_util.get_users()[users_util.get_machine_id()].get(attr, '')
+
+        dialog = SetPathDialog(software=software, path=default_dir)
         result = dialog.exec_()
 
-        # If path saved
         if result == QtWidgets.QDialog.Accepted:
-            return dialog.path_line_edit.text()
+            new_dir = dialog.path_line_edit.text()
         else:
-            if force:
-                # Recursively launch the new first time user setup again
-                return self._input_new_path()
-        return ''
+            new_dir = default_dir
+
+        # Update new path for user
+        users_util.set_user_attr(users_util.get_machine_id(), attr, new_dir)
+        if label:
+            label.setText(new_dir)
+
+        return new_dir
 
 
 class NewUserDialog(GLMDialog):
@@ -195,8 +270,13 @@ class NewUserDialog(GLMDialog):
 
 class SetPathDialog(GLMDialog):
 
-    def __init__(self, software : str, path : str=''):
-        """ Initializes the SetPathDialog and its UI."""
+    def __init__(self, software : str, path : str):
+        """ Initializes the SetPathDialog and its UI.
+
+        Args:
+            software (str): The name of the software that the user is being prompted a path for.
+            path (str): The default path to set the dialog to.
+        """
         super().__init__(ui_path=os_util.get_resource_path(r'resources\ui\set_path_dialog.ui'))
 
         # Label setup
@@ -208,8 +288,12 @@ class SetPathDialog(GLMDialog):
         # Folder button setup
         self.folder_button.clicked.connect(self._on_folder_button_clicked)
 
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+        self.buttonBox.button(QtWidgets.QDialogButtonBox.Ignore).clicked.connect(self.reject)
+
     def _on_folder_button_clicked(self):
         """ Called when the folder button is clicked."""
 
-        folder = QtWidgets.QFileDialog.getExistingDirectory(None, "Select Folder")
+        folder = os.path.normpath(QtWidgets.QFileDialog.getExistingDirectory(None, "Select Folder"))
         self.path_line_edit.setText(folder)
