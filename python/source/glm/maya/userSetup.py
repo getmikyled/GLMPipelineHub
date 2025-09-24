@@ -8,8 +8,9 @@ import maya.utils
 import menu
 
 PYTHON_PATHS = [
+    r'G:\Shared Drives\GLM\06_PIPELINE\python\source',
     r'G:\Shared Drives\GLM\06_PIPELINE\python\source\site-packages',
-    r'G:\Shared drives\GLM\06_PIPELINE\Blender\4.4\python\lib\site-packages'
+    r'G:\Shared Drives\GLM\06_PIPELINE\Blender\4.4\python\lib\site-packages'
 ]
 
 # Initialize GLM menu

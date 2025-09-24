@@ -2,12 +2,9 @@
 # Author: Mikyle Mosquera
 # 2025Q3
 
-import os
 from typing import Optional
 
-from PySide2 import QtWidgets, QtGui, QtUiTools, QtCore
-
-import sitecustomize
+from PySide6 import QtWidgets, QtGui, QtUiTools, QtCore
 
 class UIFileLoader(QtUiTools.QUiLoader):
     """ A UI Loader that allows for loading .ui files into an existing class."""

@@ -4,28 +4,19 @@
 
 import bpy
 import addon_utils
-import sys
-import os
 
-PYTHON_PATH = r"G:\Shared drives\GLM\06_PIPELINE\python\source"
-if PYTHON_PATH not in sys.path:
-    sys.path.append(PYTHON_PATH)
+GLM_MODULES = {
+    'bl_ext.system.photographer',
+    'bl_ext.system.render_preset',
+    'bl_ext.system.eevee_projectors',
+    'bl_ext.system.substance_textures_importer',
+    'bl_ext.system.you_are_autosave'
+}
 
-def _enable_system_add_ons():
+@bpy.app.handlers.persistent
+def enable_glm_addons(arg1 = None, arg2 = None):
     """Enable system add-ons"""
-    print('bruh')
-    for mod in addon_utils.modules():
-        # If they begin with the system prefix, add it
-        if mod.__name__.startswith('bl_ext.system'):
-            print(f'enabled {mod.__name__}')
-            addon_utils.enable(mod.__name__)
-
-def _disable_system_add_ons():
-    """Disable system add-ons"""
-    for mod in addon_utils.modules():
-        # If they begin with the system prefix, add it
-        if mod.__name__.startswith('bl_ext.system'):
-            print(f'disabled {mod.__name__}')
-            addon_utils.enable(mod.__name__)
-print('man')
-bpy.app.handlers.load_post.append(_enable_system_add_ons)
+    for module in addon_utils.modules():
+        if module.__name__ in GLM_MODULES:
+            print(f'enabled {module.__name__}')
+            bpy.ops.preferences.addon_enable(module=module.__name__)

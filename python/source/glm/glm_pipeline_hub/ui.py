@@ -3,6 +3,7 @@
 # 2025Q3
 
 import os
+import enum
 
 from PyQt5 import QtWidgets, uic, QtGui
 
@@ -153,13 +154,15 @@ class GLMPipelineHubMainWindow(QtWidgets.QMainWindow):
             username = self._input_new_username(force=True)
             users_util.set_user_attr(self.machine_id, 'username', username)
 
+        # Set User's Maya path
         if users_util.MAYA_USER_ATTR not in users_util.get_users()[api.MACHINE_ID].keys():
-            maya_path = r'C:\Program Files\Autodesk\Maya2024'
+            maya_path = r'C:\Program Files\Autodesk\Maya2026'
             if os.path.exists(maya_path):
                 users_util.set_user_attr(self.machine_id, users_util.MAYA_USER_ATTR, maya_path)
             else:
                 self._input_new_path('Maya', users_util.MAYA_USER_ATTR)
 
+        # Set User's Local Maya path (Prefs directory)
         if users_util.LOCAL_MAYA_USER_ATTR not in users_util.get_users()[api.MACHINE_ID].keys():
             local_maya_path = os.path.expanduser(r'~\Documents\maya')
             if os.path.exists(local_maya_path):
@@ -167,6 +170,7 @@ class GLMPipelineHubMainWindow(QtWidgets.QMainWindow):
             else:
                 self._input_new_path('Local Maya', users_util.LOCAL_MAYA_USER_ATTR)
 
+        # Set User's Blender path
         if users_util.BLENDER_USER_ATTR not in users_util.get_users()[api.MACHINE_ID].keys():
             blender_path = r'G:\Shared drives\GLM\06_PIPELINE\Blender'
             if os.path.exists(blender_path):
@@ -174,6 +178,7 @@ class GLMPipelineHubMainWindow(QtWidgets.QMainWindow):
             else:
                 self._input_new_path('Blender', users_util.BLENDER_USER_ATTR)
 
+        # Set User's Substance Painter Path
         if users_util.SUBSTANCE_PAINTER_USER_ATTR not in users_util.get_users()[api.MACHINE_ID].keys():
             substance_painter_path = r'C:\Program Files\Adobe\Adobe Substance 3D Painter'
             if os.path.exists(substance_painter_path) :
@@ -182,6 +187,7 @@ class GLMPipelineHubMainWindow(QtWidgets.QMainWindow):
             else:
                 self._input_new_path('Substance Painter', users_util.SUBSTANCE_PAINTER_USER_ATTR)
 
+        # Set User's Local Substance Painter Path
         if users_util.LOCAL_SUBSTANCE_PAINTER_USER_ATTR not in users_util.get_users()[api.MACHINE_ID].keys():
             local_substance_painter_path = os.path.expanduser(r'~\Documents\Adobe\Adobe Substance 3D Painter')
             if os.path.exists(local_substance_painter_path):

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>992</width>
-    <height>115</height>
+    <height>167</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -97,17 +97,25 @@
      </layout>
     </item>
     <item>
-     <spacer name="verticalSpacer">
+     <widget class="Line" name="line_3">
       <property name="orientation">
-       <enum>Qt::Vertical</enum>
+       <enum>Qt::Horizontal</enum>
       </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>40</height>
-       </size>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Rigs to Export</string>
       </property>
-     </spacer>
+     </widget>
+    </item>
+    <item>
+     <widget class="QListWidget" name="rig_list_widget">
+      <property name="selectionMode">
+       <enum>QAbstractItemView::ExtendedSelection</enum>
+      </property>
+     </widget>
     </item>
     <item>
      <widget class="QPushButton" name="export_animation_to_blender_button">

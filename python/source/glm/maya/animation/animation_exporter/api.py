@@ -6,23 +6,19 @@ import os
 import tempfile
 import shutil
 
-from shiboken2 import delete
-
 import glm.maya.maya_contexts as maya_contexts
 from glm.blender.background.api import create_animation_cache_blend_file
 
 import maya.mel as mel
 
 import maya.cmds as cmds
-import maya.standalone
 
 TEMP_EXPORT_NAME = 'temp_glm_animation_export'
 TEMP_DIR = os.path.join(tempfile.gettempdir(), TEMP_EXPORT_NAME).replace('\\','/')
 TEMP_CACHE_PATH = os.path.join(TEMP_DIR, f'{TEMP_EXPORT_NAME}.xml').replace('\\','/')
-TEMP_USD_PATH = os.path.join(TEMP_DIR, f'{TEMP_EXPORT_NAME}.usd').replace('\\','/')
 
 def export_animation_to_blender(deforming_geometry: list[str], start_frame: int, end_frame: int,
-                                character_name: str, model_path: str, blend_path: str):
+                                model_paths: {str: str}, usd_path: str, blend_path: str):
 
     # Delete temp directory if it exists, and create it
     if os.path.exists(TEMP_DIR):
@@ -33,57 +29,45 @@ def export_animation_to_blender(deforming_geometry: list[str], start_frame: int,
     # Save current Maya file
     cmds.file(save=True, force=True)
 
-    # ------------------------------------------------------------------------------------------------
-    # Import all references and fix naming
-    # If you don't remove reference part of object name, it'll mess up importing geo cache, which is name based
-    refs = cmds.file(query=True, reference=True)
-    for ref in refs:
-        cmds.file(ref, importReference=True)
-
-    new_deforming_geometry = []
-    for node in deforming_geometry:
-        new_name = node.split(':')[-1]
-        cmds.rename(node, new_name)
-        new_deforming_geometry.append(new_name)
-
     # Bake to geo cache
     with maya_contexts.restore_selection():
         # Delete any existing geometry caches
         delete_geometry_caches()
 
         # Select deforming geometry
-        cmds.select(new_deforming_geometry)
+        cmds.select(deforming_geometry)
 
         # Cache deforming geometry
         create_geometry_cache(TEMP_DIR, TEMP_EXPORT_NAME, start_frame, end_frame)
 
     # ------------------------------------------------------------------------------------------------
     # Create toUSD scene
-    # Note: Discards saved changes in base scene to keep animation scene clean
+    # Note: Discards cache changes in base scene to keep animation scene clean
     cmds.file(newFile=True, force=True)
 
     # Import your model and select geometry
-    cmds.file(model_path, i=True)
+    for namespace, model_path in model_paths.items():
+        cmds.file(model_path, i=True, namespace=namespace)
 
     # Import geo cache
     deforming_geo_shapes = []
-    for transform in new_deforming_geometry:
+    for transform in deforming_geometry:
         shapes = cmds.listRelatives(transform, shapes=True)
         deforming_geo_shapes.append(shapes[0])
     for geo in deforming_geo_shapes:
         # Attach the cache (Maya creates a cacheFile node and connects it to a history switch)
         cache_path = os.path.join(TEMP_DIR, TEMP_CACHE_PATH)
-        switch = maya.mel.eval(f'createHistorySwitch("{geo}",false)')
+        switch = mel.eval(f'createHistorySwitch("{geo}",false)')
         cmds.cacheFile(f=cache_path, cnm=geo, ia=f'{switch}.inp[0]', attachFile=True)
         cmds.setAttr(f'{switch}.playFromCache', 1)
 
     # ------------------------------------------------------------------------------------------------
     # Export all as USD
-    export_all_as_usd(export_path=TEMP_USD_PATH, start_frame=start_frame, end_frame=end_frame)
+    export_all_as_usd(export_path=usd_path, start_frame=start_frame, end_frame=end_frame)
 
     # ------------------------------------------------------------------------------------------------
     # Import in blender
-    create_animation_cache_blend_file(character_name=character_name, blend_path=blend_path, import_path=TEMP_USD_PATH)
+    create_animation_cache_blend_file(blend_path=blend_path, import_path=usd_path)
 
     print('Animation export is now complete.')
 

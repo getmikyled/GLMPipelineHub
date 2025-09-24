@@ -27,6 +27,10 @@ def create_glm_menu():
 
     # ------------------------------------------------------------------------------------------------------
     # Animation Submenu
+    cmds.menuItem(label='Reference Rigs',
+                  command='from glm.maya.animation.reference_rigs.ui' +
+                          ' import ReferenceRigsMainWindow; ReferenceRigsMainWindow().show()',
+                  parent=animation_submenu)
     cmds.menuItem(label='Animation Exporter',
                   command='from glm.maya.animation.animation_exporter.ui' +
                           ' import AnimationExporterMainWindow; AnimationExporterMainWindow().show()',
@@ -34,6 +38,10 @@ def create_glm_menu():
 
     # ------------------------------------------------------------------------------------------------------
     # Rigging Submenu
+    cmds.menuItem(label='Rig Manager',
+                  command='from glm.maya.rigging.rig_manager.ui' +
+                          ' import RigManagerMainWindow; RigManagerMainWindow().show()',
+                  parent=rigging_submenu)
     cmds.menuItem(label='Curve Creator',
                   command= 'from curveCreator import curveUI; curveUI.showUI()',
                   parent=rigging_submenu)

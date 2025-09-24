@@ -3,9 +3,9 @@
 # 2025Q3
 
 import os
-from shiboken2 import wrapInstance
+from shiboken6 import wrapInstance
 
-from PySide2 import QtWidgets, QtGui
+from PySide6 import QtWidgets, QtGui
 
 import maya.OpenMayaUI as omui
 
@@ -38,5 +38,4 @@ class SingletonMayaMainWindow(QtWidgets.QMainWindow):
             return
 
         self._initialized = True
-        print(os.path.join(sitecustomize.IMAGES_DIR, 'glm_icon.jpg'))
         self.setWindowIcon(QtGui.QIcon(os.path.join(sitecustomize.IMAGES_DIR, 'glm_icon.jpg')))
